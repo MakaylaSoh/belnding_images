@@ -1,6 +1,7 @@
 /* Makayla Soh 9/30/2021
-*  File name: assign1.cpp
-*  Description: Assign1
+*  File name: blend_images.cpp
+*  Description: Accepts two input bmp images, a ratio, and an output image file. Blends the two input images using 
+*    the provided ratio to create an output image, placed in the provided output file, that is a blend of the two input images.
 */
 
 #include <stdio.h>
