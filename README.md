@@ -1,2 +1,23 @@
-# belnding_images
-Blends two bmp images with a certain ratio of each image.
+Project: Blending Images
+
+Purpose: Create a really cool output image that is a blend of two input bmp images. Must take into account bmp padding, structure padding in C, and bmp file organization. The output image will be the same size as the input image with a larger pixel width.
+
+BMP IMAGES
+
+Bmp images are formated with an fileheader and an infoheader. These two headers provide information such as  the size of the file, the number of pixels wide and high, the type of bmp image and so on. To read in the bmp images, the headers were first read into a structure. These structures allowed us to access the infomation about the bmp files. These are the struct BITMAPFILEHEADER and struct BITMAPINFOHEADER in the program. These headers provided essential information needed to manipulate the images. This infomation includes the total size of the image found in the bitmapinfoheader biSizeImage and the width and height in pixels of the image found in the bitmapinfoheader biWidth and biHeight.
+
+READING IN IMAGES
+
+Files are accessed using file IO. This includes opening the bmp image files with fopen(), reading using fread(), writing using fwrite(), and closing using fclose(). To read in the headers, the structures have padding but the headers in the bmp file do not. This means that each attribute of the structure must be read in individually unless all the fields are already 4 bytes aligned - which is the case with the infoheader. The bmp headers must first be read so that the size of the image data can be known and allocated using malloc. The biSizeImage in the infoheader provides the total bytes of the image. The biWidth and biHeight provide the pixel width and height, not the byte width/height.
+
+IMAGE COLORS AND PADDING
+
+Each pixel is associated with three bytes representing the blue, green, and red value of the color of that pixel. To access those colors, the bmp file data must be read into an array, and each byte value can be accessed in that array. For example, the first byte in a bmp file data will the be blue value of the first pixel, the second byte is the green value of the first pixel, the third byte is the red value of the first pixel, the fourth byte is the blue value of the second pixel, and so on.
+
+Images have padding as well. Each row of bytes in a bmp image must be 4 byte aligned. To calculate this, the width in pixels must first be multiplied by 3 - due to three bytes (one for the blue, green, and red values) per pixel to find the pixel width in bytes. Then garbage or filler bytes will be added on, if necessary, to make the entire row a multiple of four. These garbage bytes have no meaning and should not be accessed or used. This calculation will give the correct width in bytes of the image, and this must be done for both images.
+
+COMBINGING IMAGES
+
+The two input images may be of different widths and heights. The result image will be the same size as the input image with the largest pixel width, regardless of height. To calculate which pixels on the two input images that must be combined to get the result pixel color, a ratio must be found. For every pixel in the result image, there is a corresponding pixel in the input image with the largest pixel width - because both of those images are the same size. For the input image of a different size, each pixel of the result data corresponds to a different pixel. For example, consider an image ex_image that has a width 2/3 the size of the result image. Then for each pixel in the result image at width x, the corresponding pixel in ex_image will have a width 2/3 * x. Thus the ratio between the two images is small width divided by large width and same with the height. Notice that in ex_imag, the pixel value may be a decimal. To find the pixel color of a decimal, bilinear interpolation is used! Bilinear interpolation takes into account the surrounding pixels to calculate the values (b, g, r) of the point intbetween multliple pixels.
+
+After getting the correct values for each pixel, there is a rgb color value for input image 1 and a rgb value for imput image 2. The two values are combined using the input ratio. This calculation is done by calculating image1_byte_color(ratio) + image2_byte_color(1-ratio) for each corresponding byte. This gives a certain ratio of each of the images, provided a result byte color for the result image. Note that the red, green, and blue values must be calculated separately and then placed in a result image data. The headers and result data is then written to the output file. Note that the headers are the file and info header of the image with the larger width - since that is the same size as the result data.
